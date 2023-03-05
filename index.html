@@ -1,0 +1,27 @@
+<html>
+    <body>
+    <h1>
+        Countdown
+    </h1>
+        <script>
+            let clientId=null;
+            let ws = new WebSocket("ws://localhost:8230");
+            ws.onmessage = message => {
+                const response = JSON.parse(message.data);
+                const countdown = document.getElementById("count");
+                console.log(response);
+                if(response.method == "connect"){
+                    clientId = response.clientId;
+                    console.log("This is your clientId "+clientId);
+                }
+
+                if(response.method == "countdown"){
+                    countdown.innerHTML = response.count;
+                }
+            }
+        </script>
+
+        <h1 id="count">
+        </h1>
+    </body>
+</html>
