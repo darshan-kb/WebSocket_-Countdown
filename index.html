@@ -6,10 +6,12 @@
         <script>
             let clientId=null;
             let ws = new WebSocket("ws://localhost:8230");
-            ws.onmessage = message => {
-                const response = JSON.parse(message.data);
+            ws.onopen = () => ws.send(JSON.stringify("Hello server"));
+            ws.onmessage = message => {                             //wiring of the event with server. so when server send
+                const response = JSON.parse(message.data);          // some message this message function will be called
                 const countdown = document.getElementById("count");
                 console.log(response);
+                
                 if(response.method == "connect"){
                     clientId = response.clientId;
                     console.log("This is your clientId "+clientId);
@@ -19,6 +21,7 @@
                     countdown.innerHTML = response.count;
                 }
             }
+            
         </script>
 
         <h1 id="count">

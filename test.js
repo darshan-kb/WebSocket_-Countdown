@@ -5,7 +5,7 @@ app.get("/",(req,res)=> res.sendFile(_dirname+"/index.html"));
 
 const webSocketServer = require("websocket").server; //creating websocket server this will give a class which contains all the events
 
-let connection = null;
+let connections = [];
 let count = 300;
 const httpserver = http.createServer((req, res) =>{
     console.log("we have received a request");
@@ -20,13 +20,15 @@ const websocket = new webSocketServer({ //It takes the JSON.
 
 websocket.on("request", request=>{
     //console.log("hello");
-    connection = request.accept(null, request.origin);
+    let connection = request.accept(null, request.origin);
+    connections.push(connection);
     connection.on("open", ()=> console.log("Opened"));
     connection.on("close", ()=> console.log("closed"));
     connection.on("message", message=>{                             // this method is called when we call ws.send from the client
-        //console.log(`received message ${message.utf8Data}`);
+        console.log(`message - ${message.utf8Data}`);
         
-        connection.send("Hello client!!");
+        for(c of connections)
+            c.send(JSON.stringify("Hello new client!!"));
         //sendevery3sec();
     }) 
 
@@ -41,7 +43,7 @@ websocket.on("request", request=>{
     }
     //connection.send(JSON.stringify(payload));
     
-    sendevery3sec();
+    //sendevery3sec();
 })
 
 
@@ -53,6 +55,17 @@ function guid() {
   var x = setInterval(function(){
     console.log(count);
     
+    let min = parseInt(count/60);
+    let sec = count%60;
+    const payload ={
+        "method": "countdown",
+        "count": min+":"+sec
+    }
+    clientarry.forEach(function(item){
+        clients[item].connection.send(JSON.stringify(payload));
+    })
+
+
     count-=1;
     if(count<=0){
         count=300;
